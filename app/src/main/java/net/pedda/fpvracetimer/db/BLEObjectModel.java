@@ -1,4 +1,4 @@
-package net.pedda.fpvracetimer.models;
+package net.pedda.fpvracetimer.db;
 
 import java.util.LinkedList;
 import java.util.List;

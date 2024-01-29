@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,22 +16,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import net.pedda.fpvracetimer.R;
 import net.pedda.fpvracetimer.databinding.FragmentNotificationsBinding;
-import net.pedda.fpvracetimer.models.BLEObjectModel;
+import net.pedda.fpvracetimer.db.BLEObjectModel;
 import net.pedda.fpvracetimer.ui.BLEDeviceAdapter;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.BeaconParser;
-import org.altbeacon.beacon.Identifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
-import org.opencv.core.Range;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 public class NotificationsFragment extends Fragment {

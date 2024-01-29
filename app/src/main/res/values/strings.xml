@@ -3,4 +3,19 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="webserver_notification_channel_id">FPVRT_WEBSERVER_NOTIFICATION</string>
+    <string name="webserver_notification_title">FPVRaceTimer Webserver</string>
+    <string name="webserver_notification_stop">Stop Server</string>
+    <string name="manifest_service_reason">SpecialUse is used to drive a backgroundservice hosting a webpage</string>
+    <string name="droneconfig_nav_title">Drones</string>
+    <string name="webtemplate_index" >
+        <html>
+            <head>
+                <title>FPVRaceTimer</title>
+            </head>
+            <body>
+                Test
+            </body>
+        </html>
+    </string>
 </resources>

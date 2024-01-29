@@ -16,4 +16,10 @@
         android:icon="@drawable/ic_notifications_black_24dp"
         android:title="@string/title_notifications" />
 
+    <item
+        android:id="@+id/droneFragment"
+        android:icon="@drawable/ic_quadcopter"
+        android:title="@string/droneconfig_nav_title">
+    </item>
+
 </menu>

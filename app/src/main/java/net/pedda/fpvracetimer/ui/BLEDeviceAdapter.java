@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.pedda.fpvracetimer.R;
-import net.pedda.fpvracetimer.models.BLEObjectModel;
+import net.pedda.fpvracetimer.db.BLEObjectModel;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class BLEDeviceAdapter extends RecyclerView.Adapter<BLEDeviceAdapter.View
 
     }
 
-    private List<BLEObjectModel> mDevices;
+    private final List<BLEObjectModel> mDevices;
 
     public BLEDeviceAdapter(List<BLEObjectModel> devices) {
         mDevices = devices;

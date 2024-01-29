@@ -1,12 +1,26 @@
 package net.pedda.fpvracetimer.webtools;
 
+import android.content.Context;
+import android.content.res.Resources;
+
+import com.hubspot.jinjava.Jinjava;
+
+import net.pedda.fpvracetimer.R;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import fi.iki.elonen.NanoHTTPD;
 
 public class FPVWebServerNano extends NanoHTTPD {
 
+    Context ctx;
 
-    public FPVWebServerNano(int port) {
+
+    public FPVWebServerNano(int port, Context ctx) {
         super(port);
+        this.ctx = ctx;
     }
 
 
@@ -50,7 +64,15 @@ public class FPVWebServerNano extends NanoHTTPD {
         return newFixedLengthResponse("");
     }
     private Response servePathIndex(){
-        return newFixedLengthResponse("");
+        Resources res = ctx.getResources();
+        String s = res.getString(R.string.webtemplate_index);
+        Jinjava jinjava = new Jinjava();
+        HashMap<String, List<String>> context = new HashMap<String, List<String>>();
+        LinkedList<String> results = new LinkedList<String>();
+        results.add("Testresult");
+        context.put("results", results);
+        String response = jinjava.render(s, context);
+        return newFixedLengthResponse(response);
     }
 
 }

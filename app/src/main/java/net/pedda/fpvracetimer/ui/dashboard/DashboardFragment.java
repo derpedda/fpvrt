@@ -8,9 +8,6 @@ import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,13 +16,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import net.pedda.fpvracetimer.MainActivity;
 import net.pedda.fpvracetimer.R;
 import net.pedda.fpvracetimer.databinding.FragmentDashboardBinding;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
@@ -84,7 +79,7 @@ public class DashboardFragment extends Fragment implements CameraBridgeViewBase.
             ActivityCompat.requestPermissions(this.getActivity(), new String[] {Manifest.permission.CAMERA},12);
         }
 
-        mOpenCvCameraView = (CameraBridgeViewBase) root.findViewById(R.id.fpvracetimer_surface_view);
+        mOpenCvCameraView = (CameraBridgeViewBase) root.findViewById(R.id.fpvracetimer_camera_view);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setCameraPermissionGranted();

@@ -1,5 +1,6 @@
 package net.pedda.fpvracetimer.webtools;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -13,13 +14,17 @@ public class FPVWebServer {
     private static final String TAG = "FPVRT-WS";
     static boolean running = false;
 
-    static FPVWebServerNano nanoserver;
+    Context ctx;
+
+    FPVWebServerNano nanoserver;
 
     void runWebserver() {
-        if(nanoserver != null)
-            nanoserver = new FPVWebServerNano(8080);
+        if(running) {
+            Log.e(TAG, "runWebserver: Only one instance is allowed");
+        }
+        if(nanoserver == null)
+            nanoserver = new FPVWebServerNano(8080, this.ctx);
         try {
-            assert nanoserver != null;
             nanoserver.start();
         } catch (IOException ioex) {
             Log.e(TAG, "runWebserver: Unable to start webserver");
@@ -36,7 +41,11 @@ public class FPVWebServer {
         }
     }
 
+    public static boolean isRunning() {
+        return running;
+    }
 
-
-
+    public FPVWebServer(Context ctx) {
+        this.ctx = ctx;
+    }
 }
