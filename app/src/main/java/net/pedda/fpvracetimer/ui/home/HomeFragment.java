@@ -47,11 +47,6 @@ public class HomeFragment extends Fragment {
             btnStartWeb.setEnabled(false);
         });
 
-        // FIXME: make this not consuming the MainThread
-        fpvDB = FPVDb.getDatabase(requireContext());
-        DroneDao droneDao = fpvDB.droneDao();
-        List<Drone> drones = droneDao.getAll();
-
         return root;
     }
 

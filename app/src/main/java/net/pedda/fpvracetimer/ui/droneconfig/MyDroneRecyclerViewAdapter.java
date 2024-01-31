@@ -1,23 +1,34 @@
 package net.pedda.fpvracetimer.ui.droneconfig;
 
+import android.app.Dialog;
+import android.content.Intent;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.dhaval2404.colorpicker.ColorPickerDialog;
+//import org.xdty.preference.colorpicker.ColorPickerDialog;
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog;
 import com.github.dhaval2404.colorpicker.listener.ColorListener;
 import com.github.dhaval2404.colorpicker.model.ColorShape;
 import com.github.dhaval2404.colorpicker.model.ColorSwatch;
 import com.tianscar.colorview.ColorView;
 
+import net.pedda.fpvracetimer.R;
+import net.pedda.fpvracetimer.ble.BLETool;
+import net.pedda.fpvracetimer.ble.BluetoothLeConnectionService;
 import net.pedda.fpvracetimer.databinding.FragmentDroneBinding;
 import net.pedda.fpvracetimer.ui.droneconfig.DroneItemContent.DroneItem;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,7 +37,11 @@ import java.util.List;
  */
 public class MyDroneRecyclerViewAdapter extends RecyclerView.Adapter<MyDroneRecyclerViewAdapter.ViewHolder> {
 
+    private static final String TAG = "DroneRecyclerViewAdapter";
+
     private final List<DroneItem> mValues;
+
+    public static final String ACTION_SETCOLOR = "net.pedda.fpvracetimer.drone.setcolor";
 
     public MyDroneRecyclerViewAdapter(List<DroneItem> items) {
         mValues = items;
@@ -49,19 +64,30 @@ public class MyDroneRecyclerViewAdapter extends RecyclerView.Adapter<MyDroneRecy
         holder.mColorView.setColor(mValues.get(position).dColor);
         holder.mRSSIView.setText(String.valueOf(mValues.get(position).dRSSI));
 
+
+        String[] COLORS = {
+                "#FF0000", "#0000FF", "#00FF00",
+                "#FF7F00","#FFFF00","#FF00FF",
+                "#00FFFF"
+        };
+
         holder.mColorView.setOnClickListener(v -> new MaterialColorPickerDialog
                 .Builder(v.getContext())
                 .setTitle("Pick a color")
                 .setColorShape(ColorShape.SQAURE)
-                .setColorSwatch(ColorSwatch._300)
+                .setColors(COLORS)
                 .setDefaultColor(mValues.get(position_int).dColor)
-                .setColorListener(new ColorListener() {
-                    @Override
-                    public void onColorSelected(int color, @NotNull String colorHex) {
-                        // Handle Color Selection
-                        mValues.get(holder.getBindingAdapterPosition()).dColor = color;
-                        holder.getBindingAdapter().notifyItemChanged(holder.getBindingAdapterPosition());
-                    }
+                .setColorListener((color, colorHex) -> {
+                    // Handle Color Selection
+                    DroneItem di = mValues.get(holder.getBindingAdapterPosition());
+                    di.dColor = color;
+                    Intent intent = new Intent(ACTION_SETCOLOR);
+                    intent.putExtra("MAC", di.bleMac);
+                    intent.putExtra("COLOR", di.dColor);
+                    v.getContext().sendBroadcast(intent);
+//                    LocalBroadcastManager.getInstance(v.getContext()).sendBroadcast(intent);
+                    holder.getBindingAdapter().notifyItemChanged(holder.getBindingAdapterPosition());
+
                 })
                 .show());
 

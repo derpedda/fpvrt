@@ -1,5 +1,7 @@
 package net.pedda.fpvracetimer.ui.droneconfig;
 
+import android.graphics.Color;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,10 +31,12 @@ public class DroneItemContent {
         ITEM_MAP.put(item.droneId, item);
     }
 
-    public static int addNewItem(String id, String droneName, String droneId, int dRSSI, int dColor) {
+    public static int addNewItem(String id, String deviceMac, String droneName, String droneId, int dRSSI, Integer dColor) {
         DroneItem item = null;
         if (!ITEM_MAP.containsKey(droneId)) {
-            item = new DroneItemContent.DroneItem(id, droneName, droneId, dRSSI, dColor);
+            if(dColor == null)
+                dColor = Color.BLUE;
+            item = new DroneItemContent.DroneItem(id, droneName, droneId, dRSSI, dColor, deviceMac);
             ITEMS.add(item);
             ITEM_MAP.put(droneId, item);
             return ITEMS.indexOf(ITEM_MAP.get(droneId));
@@ -56,12 +60,15 @@ public class DroneItemContent {
 
         public int dColor;
 
-        public DroneItem(String id, String droneName, String droneId, int dRSSI, int dColor) {
+        public final String bleMac;
+
+        public DroneItem(String id, String droneName, String droneId, int dRSSI, int dColor, String bleMac) {
             this.id = id;
             this.droneName = droneName;
             this.droneId = droneId;
             this.dRSSI = dRSSI;
             this.dColor = dColor;
+            this.bleMac = bleMac;
         }
 
         @Override

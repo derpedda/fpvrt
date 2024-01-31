@@ -16,6 +16,7 @@
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.front.autofocus" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
 
     <application
         android:allowBackup="true"
@@ -32,8 +33,8 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="net.pedda.fpvracetimer.drone.setcolor" />
             </intent-filter>
         </activity>
 
@@ -43,6 +44,13 @@
             android:exported="false"
             tools:node="merge">
             <property android:name="reason" android:resource="@string/manifest_service_reason" />
+        </service>
+
+        <service
+            android:name=".ble.BluetoothLeConnectionService"
+            android:exported="false"
+            android:enabled="true"
+            tools:node="merge">
         </service>
 
     </application>

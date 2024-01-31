@@ -8,6 +8,7 @@
     <string name="webserver_notification_stop">Stop Server</string>
     <string name="manifest_service_reason">SpecialUse is used to drive a backgroundservice hosting a webpage</string>
     <string name="droneconfig_nav_title">Drones</string>
+    <string name="sync_submit">Sync</string>
     <string name="webtemplate_index" >
         <html>
             <head>
