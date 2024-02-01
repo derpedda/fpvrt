@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,6 +60,7 @@ public class DroneFragment extends Fragment {
 
 
     private BeaconManager beaconManager;
+    private Region region;
     private BluetoothLeConnectionService bluetoothService;
 
 
@@ -198,10 +200,12 @@ public class DroneFragment extends Fragment {
 
             @Override
             public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                return true;
                 // TODO: Make this refresh the scan
+                beaconManager.startRangingBeacons(region);
+                return true;
             }
-        });
+        }, getViewLifecycleOwner(), Lifecycle.State.STARTED);
+
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -243,7 +247,8 @@ public class DroneFragment extends Fragment {
 
             beaconManager.setForegroundScanPeriod(1000); // in ms
             beaconManager.setForegroundBetweenScanPeriod(500);
-            beaconManager.startRangingBeacons(new Region("Regiontest", null, null, null));
+            region = new Region("Regiontest", null, null, null);
+            beaconManager.startRangingBeacons(region);
 
         }
         return view;
