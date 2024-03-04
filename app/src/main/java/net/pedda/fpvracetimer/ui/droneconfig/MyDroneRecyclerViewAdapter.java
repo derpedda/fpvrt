@@ -1,5 +1,6 @@
 package net.pedda.fpvracetimer.ui.droneconfig;
 
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
@@ -9,21 +10,24 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.dhaval2404.colorpicker.ColorPickerDialog;
-//import org.xdty.preference.colorpicker.ColorPickerDialog;
+
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog;
-import com.github.dhaval2404.colorpicker.listener.ColorListener;
 import com.github.dhaval2404.colorpicker.model.ColorShape;
-import com.github.dhaval2404.colorpicker.model.ColorSwatch;
 import com.tianscar.colorview.ColorView;
 
 import net.pedda.fpvracetimer.R;
 import net.pedda.fpvracetimer.ble.BLETool;
 import net.pedda.fpvracetimer.ble.BluetoothLeConnectionService;
 import net.pedda.fpvracetimer.databinding.FragmentDroneBinding;
+import net.pedda.fpvracetimer.db.DBUtils;
+import net.pedda.fpvracetimer.db.Drone;
+import net.pedda.fpvracetimer.db.DroneDao;
+import net.pedda.fpvracetimer.db.FPVDb;
 import net.pedda.fpvracetimer.ui.droneconfig.DroneItemContent.DroneItem;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,11 +43,20 @@ public class MyDroneRecyclerViewAdapter extends RecyclerView.Adapter<MyDroneRecy
 
     private static final String TAG = "DroneRecyclerViewAdapter";
 
-    private final List<DroneItem> mValues;
+    private List<Drone> mValues;
+
+    private AppCompatActivity mActivity;
 
     public static final String ACTION_SETCOLOR = "net.pedda.fpvracetimer.drone.setcolor";
+    public static final String ACTION_SETNAME = "net.pedda.fpvracetimer.drone.setname";
 
-    public MyDroneRecyclerViewAdapter(List<DroneItem> items) {
+    public MyDroneRecyclerViewAdapter(List<Drone> items, AppCompatActivity act) {
+        super();
+        mValues = items;
+        mActivity = act;
+    }
+
+    public void setValues(List<Drone> items) {
         mValues = items;
     }
 
@@ -55,15 +68,50 @@ public class MyDroneRecyclerViewAdapter extends RecyclerView.Adapter<MyDroneRecy
 
     }
 
+
+    public interface SingleSurveyRequestedListener {
+        public void SingleSurveyRequested(MyDroneRecyclerViewAdapter adapter);
+    }
+
+    private SingleSurveyRequestedListener mSurveyRequestedListener;
+
+
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         int position_int = holder.getBindingAdapterPosition();
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mNameView.setText(mValues.get(position).droneName);
-        holder.mColorView.setColor(mValues.get(position).dColor);
-        holder.mRSSIView.setText(String.valueOf(mValues.get(position).dRSSI));
+        holder.mIdView.setText(String.valueOf(mValues.get(position).getTransponderid()));
+        holder.mNameView.setText(mValues.get(position).getDronename());
+        holder.mColorView.setColor(mValues.get(position).getColorI());
+        holder.mRSSIView.setText(String.valueOf(mValues.get(position).getRssi()));
+        long now = System.currentTimeMillis();
+        Color bgcol = (((now - 2000) - holder.mItem.getLastSeen()) > 0) ? Color.valueOf(0.6f,0.6f,0.6f) : Color.valueOf(1,1,1);
+        holder.itemView.setBackgroundColor(bgcol.toArgb());
 
+        holder.mNameView.setOnClickListener((view) -> {
+            SingleInputDialog dialog = new SingleInputDialog(mActivity, "Edit name");
+            dialog.setButtonListener(new SingleInputDialog.InputDialogListener() {
+                @Override
+                public void onDialogPositiveClick(SingleInputDialog dialog) {
+                    holder.mItem.setDronename(dialog.getValue());
+                    DBUtils.updateDrone(holder.mItem);
+                    if(mSurveyRequestedListener != null) {
+                        mSurveyRequestedListener.SingleSurveyRequested((MyDroneRecyclerViewAdapter) holder.getBindingAdapter());
+                    }
+                    Intent intent = new Intent(ACTION_SETNAME);
+                    intent.putExtra("MAC", holder.mItem.getMac());
+                    intent.putExtra("NAME", holder.mItem.getDronename());
+                    view.getContext().sendBroadcast(intent);
+                }
+
+                @Override
+                public void onDialogNegativeClick(SingleInputDialog dialog) {
+                    dialog.dismissAllowingStateLoss();
+                }
+            });
+            dialog.show(mActivity.getSupportFragmentManager(), "ChangeNameDialog");
+
+        });
 
         String[] COLORS = {
                 "#FF0000", "#0000FF", "#00FF00",
@@ -76,14 +124,15 @@ public class MyDroneRecyclerViewAdapter extends RecyclerView.Adapter<MyDroneRecy
                 .setTitle("Pick a color")
                 .setColorShape(ColorShape.SQAURE)
                 .setColors(COLORS)
-                .setDefaultColor(mValues.get(position_int).dColor)
+                .setDefaultColor(mValues.get(position_int).getColorI())
                 .setColorListener((color, colorHex) -> {
                     // Handle Color Selection
-                    DroneItem di = mValues.get(holder.getBindingAdapterPosition());
-                    di.dColor = color;
+                    Drone d = mValues.get(holder.getBindingAdapterPosition());
+                    d.setColorI(color);
                     Intent intent = new Intent(ACTION_SETCOLOR);
-                    intent.putExtra("MAC", di.bleMac);
-                    intent.putExtra("COLOR", di.dColor);
+                    intent.putExtra("MAC", d.getMac());
+                    intent.putExtra("COLOR", d.getColorI());
+                    DBUtils.updateDrone(d);
                     v.getContext().sendBroadcast(intent);
 //                    LocalBroadcastManager.getInstance(v.getContext()).sendBroadcast(intent);
                     holder.getBindingAdapter().notifyItemChanged(holder.getBindingAdapterPosition());
@@ -91,6 +140,10 @@ public class MyDroneRecyclerViewAdapter extends RecyclerView.Adapter<MyDroneRecy
                 })
                 .show());
 
+    }
+
+    public void setSurveyRequestedListener(SingleSurveyRequestedListener listener){
+        mSurveyRequestedListener = listener;
     }
 
     @Override
@@ -105,7 +158,7 @@ public class MyDroneRecyclerViewAdapter extends RecyclerView.Adapter<MyDroneRecy
         public final ColorView mColorView;
 
         public final TextView mRSSIView;
-        public DroneItem mItem;
+        public Drone mItem;
 
     public ViewHolder(FragmentDroneBinding binding) {
       super(binding.getRoot());
@@ -116,7 +169,7 @@ public class MyDroneRecyclerViewAdapter extends RecyclerView.Adapter<MyDroneRecy
 
     }
 
-        @Override
+    @Override
         public String toString() {
             return super.toString() + " '" + mNameView.getText() + "'";
         }

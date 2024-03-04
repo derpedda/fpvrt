@@ -15,15 +15,21 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import net.pedda.fpvracetimer.db.DBUtils;
+
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class BluetoothLeConnectionService extends Service {
 
     private Binder binder = new LocalBinder();
 
     private HashMap<String, Integer> macsandcolors = new HashMap<>();
+    // Mac, ("Command", "Value)
+    private HashMap<String, HashMap<String, Object>> mcv = new HashMap<>();
 
     @Nullable
     @Override
@@ -116,7 +122,18 @@ public class BluetoothLeConnectionService extends Service {
 
 
     public void updateColorOnDrone(String mac, int color) {
-        macsandcolors.put(mac,color);
+        HashMap<String, Object> command = new HashMap<>();
+        command.put("COMMAND", "COLOR");
+        command.put("VALUE", color);
+        mcv.put(mac,command);
+        connect(mac);
+    }
+
+    public void updateNameOnDrone(String mac, String name) {
+        HashMap<String, Object> command = new HashMap<>();
+        command.put("COMMAND", "NAME");
+        command.put("VALUE", name);
+        mcv.put(mac,command);
         connect(mac);
     }
 
@@ -155,20 +172,44 @@ public class BluetoothLeConnectionService extends Service {
 
     public boolean writeUpdates() {
         if(bluetoothGatt == null) return false;
-        for(String m : macsandcolors.keySet()) {
-            int color = macsandcolors.get(m);
+
+
+
+        for(String m : mcv.keySet()) {
+
+            HashMap<String, Object> data = mcv.get(m);
+
+            assert data != null;
+            String cmd = (String) data.get("COMMAND");
+
             BluetoothGattService gattService = bluetoothGatt.getService(BLETool.CHARACTERISTIC_CONFIG);
             BluetoothGattCharacteristic btGattChar = gattService.getCharacteristic(BLETool.CHARACTERISTIC_CONFIG);
-            int r = (color>>16)&0xFF;
-            int g = (color>>8)&0xFF;
-            int b = (color>>0)&0xFF;
-            final byte[] command = {'C',(byte)r,(byte)g, (byte)b};
-            btGattChar.setValue(command);
-            bluetoothGatt.writeCharacteristic(btGattChar);
-            macsandcolors.remove(m);
+            byte[] command;
+
+            switch (cmd) {
+                case "COLOR":
+                    int color = (int)data.get("VALUE");
+                    int r = (color>>16)&0xFF;
+                    int g = (color>>8)&0xFF;
+                    int b = (color>>0)&0xFF;
+                    command = new byte[]{'C', (byte) r, (byte) g, (byte) b};
+                    btGattChar.setValue(command);
+                    bluetoothGatt.writeCharacteristic(btGattChar);
+                    break;
+                case "NAME":
+                    String name = (String)data.get("VALUE");
+                    command = String.format("N%s", name).getBytes();
+                    btGattChar.setValue(command);
+                    bluetoothGatt.writeCharacteristic(btGattChar);
+                    break;
+            }
+
+            DBUtils.updateLastSeenByMac(m);
+            mcv.remove(m);
         }
 
         bluetoothGatt.disconnect();
+
 
         return true;
     }

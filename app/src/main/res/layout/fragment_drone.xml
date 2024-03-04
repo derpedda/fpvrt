@@ -30,8 +30,8 @@
 
     <com.tianscar.colorview.ColorView
         android:id="@+id/dc_dronecolor"
-        android:layout_width="2dp"
-        android:layout_height="48dp"
+        android:layout_width="50sp"
+        android:layout_height="50sp"
         android:layout_weight="1"
         android:layout_gravity="end"/>
 </LinearLayout>

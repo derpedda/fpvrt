@@ -1,0 +1,112 @@
+package net.pedda.fpvracetimer.audio;
+
+import androidx.annotation.MenuRes;
+import androidx.lifecycle.ViewModelProvider;
+
+import android.app.Activity;
+import android.content.Context;
+import android.media.MediaRecorder;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import android.os.Environment;
+import android.os.storage.StorageManager;
+import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import net.pedda.fpvracetimer.MainActivity;
+import net.pedda.fpvracetimer.R;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.Executor;
+
+public class AudioFragment extends Fragment {
+
+    private AudioViewModel mViewModel;
+
+    private Executor mExecutor;
+    private Button btn_record;
+    private TextView tv_recording;
+
+    private MediaRecorder mr;
+    private boolean isRecording = false;
+
+    private File current_recording = null;
+
+    public static AudioFragment newInstance() {
+        return new AudioFragment();
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+
+
+        View root = inflater.inflate(R.layout.fragment_audio, container, false);
+
+        mExecutor = ((MainActivity)requireActivity()).getPoolExecutor();
+
+        btn_record = root.findViewById(R.id.btn_recordcontrol);
+
+        btn_record.setOnClickListener(v -> {
+            if(isRecording) {
+                // already running, stop it
+                mr.stop();
+                mr.release();
+                isRecording = false;
+                UploadTask ut = new UploadTask(
+                        requireContext().getString(R.string.s3_bucket),
+                        requireContext().getString(R.string.s3_endpoint),
+                        requireContext().getString(R.string.s3_access),
+                        requireContext().getString(R.string.s3_secret),
+                        current_recording
+                        );
+                mExecutor.execute(ut);
+                current_recording = null;
+                btn_record.setText("Start recording");
+
+            } else {
+                // not running, start it
+                mr = null;
+                mr = new MediaRecorder();
+                mr.setAudioSource(MediaRecorder.AudioSource.UNPROCESSED);
+                String filename = "record_"+ System.currentTimeMillis() +".aac";
+                current_recording = new File(requireContext().getCacheDir(), filename);
+                mr.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+                mr.setOutputFile(current_recording);
+                mr.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                try {
+                    mr.prepare();
+                    mr.start();
+                    isRecording = true;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                btn_record.setText("Stop recording");
+
+            }
+        });
+
+        mr = new MediaRecorder();
+
+        return root;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mViewModel = new ViewModelProvider(this).get(AudioViewModel.class);
+        // TODO: Use the ViewModel
+    }
+
+
+
+}

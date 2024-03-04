@@ -513,6 +513,12 @@ public abstract class CameraBridgeViewBase extends SurfaceView implements Surfac
             modified = frame.rgba();
         }
 
+        // This is where we can hook in
+
+
+
+        // Do not touch afterwards
+
         boolean bmpValid = true;
         if (modified != null) {
             try {

@@ -9,7 +9,23 @@
         android:id="@+id/navigation_home"
         android:name="net.pedda.fpvracetimer.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_notifications"
+            app:destination="@id/navigation_notifications" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_droneFragment"
+            app:destination="@id/navigation_droneFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_racesFragment"
+            app:destination="@id/navigation_racesFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
+        <action
+            android:id="@+id/action_navigation_home_to_navigation_audioFragment"
+            app:destination="@id/navigation_audioFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -23,8 +39,32 @@
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
     <fragment
-        android:id="@+id/droneFragment"
+        android:id="@+id/navigation_droneFragment"
         android:name="net.pedda.fpvracetimer.ui.droneconfig.DroneFragment"
         android:label="@string/droneconfig_nav_title"
         tools:layout="@layout/fragment_drone" />
+
+    <fragment
+        android:id="@+id/navigation_audioFragment"
+        android:name="net.pedda.fpvracetimer.audio.AudioFragment"
+        android:label="@string/audio_nav_title"
+        tools:layout="@layout/fragment_audio" />
+    <fragment
+        android:id="@+id/navigation_racesFragment"
+        android:name="net.pedda.fpvracetimer.ui.races.RacesFragment"
+        android:label="@string/races_nav_title"
+        tools:layout="@layout/fragment_races" >
+        <action
+            android:id="@+id/action_racesFragment_to_raceDetailFragment"
+            app:destination="@id/navigation_raceDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/navigation_raceDetailFragment"
+        android:name="net.pedda.fpvracetimer.ui.races.RaceDetailFragment"
+        android:label="fragment_race_detail"
+        tools:layout="@layout/fragment_race_detail" />
+    <argument
+        android:name="raceid"
+        app:argType="integer" />
+
 </navigation>

@@ -1,7 +1,6 @@
 package net.pedda.fpvracetimer.ui.droneconfig;
 
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -9,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,40 +18,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.pedda.fpvracetimer.R;
-import net.pedda.fpvracetimer.ble.BLETool;
 import net.pedda.fpvracetimer.ble.BluetoothLeConnectionService;
 
-import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconManager;
 import org.altbeacon.beacon.BeaconParser;
-import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 /**
  * A fragment representing a list of Items.
  */
-public class DroneFragment extends Fragment {
+public class DroneFragment extends Fragment implements MyDroneRecyclerViewAdapter.SingleSurveyRequestedListener {
 
     // TODO: Customize parameters
     private static final String TAG = "DroneFragment";
-    private int mColumnCount = 1;
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -63,21 +53,10 @@ public class DroneFragment extends Fragment {
     private Region region;
     private BluetoothLeConnectionService bluetoothService;
 
+    private DroneViewModel dvm;
 
-    // ActivityResultLauncher, as an instance variable.
-    private ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    // Permission is granted. Continue the action or workflow in your
-                    // app.
-                } else {
-                    // Explain to the user that the feature is unavailable because the
-                    // feature requires a permission that the user has denied. At the
-                    // same time, respect the user's decision. Don't link to system
-                    // settings in an effort to convince the user to change their
-                    // decision.
-                }
-            });
+    private RecyclerView recyclerView;
+    private MyDroneRecyclerViewAdapter adapter;
 
 
     // TODO: Customize parameter initialization
@@ -117,6 +96,7 @@ public class DroneFragment extends Fragment {
         intentFilter.addAction(BluetoothLeConnectionService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeConnectionService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(MyDroneRecyclerViewAdapter.ACTION_SETCOLOR);
+        intentFilter.addAction(MyDroneRecyclerViewAdapter.ACTION_SETNAME);
         return intentFilter;
     }
 
@@ -144,13 +124,18 @@ public class DroneFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-
         Intent gattServiceIntent = new Intent(requireContext(), BluetoothLeConnectionService.class);
         requireActivity().bindService(gattServiceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+        dvm = new ViewModelProvider(this).get(DroneViewModel.class);
+        dvm.getDrones().observe(this, drones -> {
+            adapter.setValues(drones);
+            adapter.notifyDataSetChanged(); // jaja
+        });
+
     }
+
+
 
     public final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
 
@@ -173,8 +158,11 @@ public class DroneFragment extends Fragment {
                 Log.i(TAG, "onReceive: " + bluetoothService.getSupportedGattServices().size());
 
             } else if (MyDroneRecyclerViewAdapter.ACTION_SETCOLOR.equals(action)) {
-                Log.i(TAG, "onReceive: Starting updating the color");
+                Log.i(TAG, "onReceive: Start updating the color");
                 bluetoothService.updateColorOnDrone(intent.getStringExtra("MAC"), intent.getIntExtra("COLOR", 0));
+            } else if (MyDroneRecyclerViewAdapter.ACTION_SETNAME.equals(action)) {
+                Log.i(TAG, "onReceive: Start updating the name");
+                bluetoothService.updateNameOnDrone(intent.getStringExtra("MAC"), intent.getStringExtra("NAME"));
             }
         }
     };
@@ -184,12 +172,6 @@ public class DroneFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_drone_list, container, false);
-
-        if (BLETool.check_blepermission(this.requireContext())) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
-            }
-        }
 
         MenuHost menuHost = requireActivity();
         menuHost.addMenuProvider(new MenuProvider() {
@@ -209,48 +191,29 @@ public class DroneFragment extends Fragment {
 
         // Set the adapter
         if (view instanceof RecyclerView) {
-            Context context = view.getContext();
 
-            MyDroneRecyclerViewAdapter adapter = new MyDroneRecyclerViewAdapter(DroneItemContent.ITEMS);
+            adapter = new MyDroneRecyclerViewAdapter(new ArrayList<>(), (AppCompatActivity) requireActivity());
 
             beaconManager = BeaconManager.getInstanceForApplication(this.requireContext());
             beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(BeaconParser.EDDYSTONE_UID_LAYOUT));
-            beaconManager.addRangeNotifier(new RangeNotifier() {
-                @Override
-                public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
+            beaconManager.removeAllRangeNotifiers();
+            beaconManager.addRangeNotifier(dvm.rnOnce(beaconManager, adapter));
+            adapter.setSurveyRequestedListener(this);
 
-                    Set<Integer> drones_changed = new HashSet<Integer>();
-                    beaconManager.stopRangingBeacons(region);
-
-                    for (Beacon b : beacons) {
-                        int result = DroneItemContent.addNewItem("Test", b.getBluetoothAddress(), "Testdrone", b.getId2().toString(), b.getRssi(), null);
-                        if (result >= 0)
-                            drones_changed.add(result);
-                    }
-
-                    for (int i : drones_changed) {
-                        adapter.notifyItemChanged(i);
-                    }
-
-//                    beaconManager.startRangingBeacons(region);
-
-                }
-            });
-
-            RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.recyclerview_dronelist);
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
+            recyclerView = view.findViewById(R.id.recyclerview_dronelist);
             recyclerView.setAdapter(adapter);
 
             beaconManager.setForegroundScanPeriod(1000); // in ms
             beaconManager.setForegroundBetweenScanPeriod(500);
-            region = new Region("Regiontest", null, null, null);
-            beaconManager.startRangingBeacons(region);
+            region = new Region("Region", null, null, null);
+            dvm.startBLEScan(beaconManager, region);
 
         }
         return view;
+    }
+
+    @Override
+    public void SingleSurveyRequested(MyDroneRecyclerViewAdapter adapter) {
+        dvm.startBLEScan(beaconManager, region);
     }
 }

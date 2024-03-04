@@ -1,13 +1,18 @@
 package net.pedda.fpvracetimer.ui.dashboard;
 
+import static org.opencv.core.CvType.CV_8UC4;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Range;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,23 +21,48 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+
 import net.pedda.fpvracetimer.R;
+import net.pedda.fpvracetimer.camtools.HelperFunctions;
+import net.pedda.fpvracetimer.camtools.HelperFunctionsCV;
 import net.pedda.fpvracetimer.databinding.FragmentDashboardBinding;
+import net.pedda.fpvracetimer.db.DBUtils;
+import net.pedda.fpvracetimer.db.Drone;
+import net.pedda.fpvracetimer.db.FPVDb;
+import net.pedda.fpvracetimer.db.helperobjects.DroneDetectedEvent;
+import net.pedda.fpvracetimer.ui.customviews.FPVJavaCamera2View;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DashboardFragment extends Fragment implements CameraBridgeViewBase.CvCameraViewListener2 {
 
+
+    private static final String TAG = "FPVRT-DF";
     private FragmentDashboardBinding binding;
-    private CameraBridgeViewBase mOpenCvCameraView;
+//    private CameraBridgeViewBase mOpenCvCameraView;
+    private FPVJavaCamera2View mOpenCvCameraView;
     private Mat mRgba;
 
     private final static int CAMERA_PERMISSION_CODE = 12;
 
-    // TODO: Fix this
+    private SeekBar mExposureSlider;
+    private SeekBar mSensitivitySlider;
+    private final static float mExposureFactor = 10;
+
+    private DashboardViewModel dashboardViewModel;
+    private FloatingActionButton mFabRaceControl;
+
+    // TODO: Remove this and make sure it gets asked when opening the App
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
@@ -55,23 +85,11 @@ public class DashboardFragment extends Fragment implements CameraBridgeViewBase.
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        DashboardViewModel dashboardViewModel =
+        dashboardViewModel =
                 new ViewModelProvider(this).get(DashboardViewModel.class);
 
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-
-//        final TextView textView = binding.textDashboard;
-//        dashboardViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
-
-        if (OpenCVLoader.initLocal()) {
-            Log.i("FPVRace", "OpenCV loaded successfully");
-            (Toast.makeText(this.getContext(), "OpenCV initialization successfull!", Toast.LENGTH_LONG)).show();
-        } else {
-            Log.e("FPVRace", "OpenCV initialization failed!");
-            (Toast.makeText(this.getContext(), "OpenCV initialization failed!", Toast.LENGTH_LONG)).show();
-        }
 
         if (ContextCompat.checkSelfPermission(this.getActivity(), Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -79,11 +97,75 @@ public class DashboardFragment extends Fragment implements CameraBridgeViewBase.
             ActivityCompat.requestPermissions(this.getActivity(), new String[] {Manifest.permission.CAMERA},12);
         }
 
-        mOpenCvCameraView = (CameraBridgeViewBase) root.findViewById(R.id.fpvracetimer_camera_view);
+        mOpenCvCameraView = root.findViewById(R.id.fpvracetimer_camera_view);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setCameraPermissionGranted();
         mOpenCvCameraView.enableView();
+
+        mExposureSlider = root.findViewById(R.id.cameraview_slider_exposure);
+        mExposureSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser) {
+                    Log.d(TAG, "onProgressChanged: Progress changed");
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int p = seekBar.getProgress();
+                mOpenCvCameraView.setExposure((long) (p*DashboardFragment.mExposureFactor));
+
+            }
+        });
+
+        mSensitivitySlider = root.findViewById(R.id.cameraview_slider_sensitivity);
+        mSensitivitySlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser) {
+                    Log.d(TAG, "onProgressChanged: Progress changed");
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                int p = seekBar.getProgress();
+                mOpenCvCameraView.setSensitivity(p);
+
+            }
+
+        });
+
+
+        mFabRaceControl = root.findViewById(R.id.racecontrol_fab);
+
+        mFabRaceControl.setOnClickListener((View v) -> {
+            dashboardViewModel.processRaceControlClick((FloatingActionButton)v);
+        });
+
+        dashboardViewModel.setMRaceChangedListener((race) -> {
+            if(race != null) {
+
+                mFabRaceControl.setImageResource(DashboardViewModel.Companion.getStateDrawable(race.getRaceState()));
+            } else {
+                mFabRaceControl.setImageResource(DashboardViewModel.Companion.getStateDrawable(DashboardViewModel.RaceState.ERROR));
+            }
+        });
+
+        dashboardViewModel.getMRaceLive().observe(this.getViewLifecycleOwner(), dashboardViewModel::setMCurrentRace);
+
 
 
         return root;
@@ -100,7 +182,15 @@ public class DashboardFragment extends Fragment implements CameraBridgeViewBase.
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        mRgba = new Mat(height, width, CvType.CV_8UC4);
+        mRgba = new Mat(height, width, CV_8UC4);
+        Range<Long> er = mOpenCvCameraView.getExposureRange();
+        mExposureSlider.setMin((int)(er.getLower()/DashboardFragment.mExposureFactor));
+        mExposureSlider.setMax((int)(er.getUpper()/5000));
+
+        Range<Integer> sr = mOpenCvCameraView.getSensitivityRange();
+        mSensitivitySlider.setMin(sr.getLower());
+        mSensitivitySlider.setMax(sr.getUpper());
+
     }
 
     @Override
@@ -111,7 +201,40 @@ public class DashboardFragment extends Fragment implements CameraBridgeViewBase.
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
-        return mRgba;
+
+        long timestamp = System.currentTimeMillis();
+        // tap in here
+        Mat red = HelperFunctionsCV.getColorMask(mRgba, HelperFunctionsCV.COLORRANGES.RED);
+        // init OpenCVHelper first at least once...
+        Mat temp = mRgba; //Mat.zeros(mRgba.size(), CV_8UC4);
+
+        // Draw a line on the screen
+        HelperFunctionsCV.drawVerticalLine(temp);
+        HelperFunctionsCV.drawDetectionRectangle(temp);
+
+        Mat detArea = HelperFunctionsCV.getDetectionSubarea(temp);
+        detArea = detArea.clone();
+
+        List<String> colors = HelperFunctionsCV.detectColors(detArea);
+        String text_detcols;
+        if(colors.size() > 0)
+        {
+            text_detcols = String.join("+", colors);
+            List<Drone> drones = DBUtils.detectDrones(text_detcols);
+//
+//        // submit timing event to DB
+            for (Drone d : drones) {
+                dashboardViewModel.droneDetected(timestamp, d);
+            }
+        } else {
+            text_detcols = "";
+        }
+        HelperFunctionsCV.drawColorText(temp, text_detcols);
+
+        // TODO Next, detect drones nearby
+
+
+        return temp;
     }
 
     @Override
@@ -125,6 +248,10 @@ public class DashboardFragment extends Fragment implements CameraBridgeViewBase.
 //            Log.d("FPVRace", "OpenCVLib found in package");
 //            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
 //        }
+        if (mOpenCvCameraView != null) {
+            mOpenCvCameraView.enableView();
+        }
+
     }
 
     @Override
