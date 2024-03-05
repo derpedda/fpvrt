@@ -78,11 +78,13 @@ public class AudioFragment extends Fragment {
                 mr = null;
                 mr = new MediaRecorder();
                 mr.setAudioSource(MediaRecorder.AudioSource.UNPROCESSED);
-                String filename = "record_"+ System.currentTimeMillis() +".aac";
+                String filename = "record_"+ System.currentTimeMillis() +".mp4";
                 current_recording = new File(requireContext().getCacheDir(), filename);
-                mr.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+                mr.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 mr.setOutputFile(current_recording);
-                mr.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mr.setAudioSamplingRate(48000);
+                mr.setAudioEncodingBitRate(384000);
+                mr.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
                 try {
                     mr.prepare();
                     mr.start();
