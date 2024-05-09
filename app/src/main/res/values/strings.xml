@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">FPVRaceTimer</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Live!</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="home_cleardb">Clear DB</string>
+    <string name="bgservice_notification_channel_id">FPVRT_BGSERVICE_NOTIFICATION</string>
+    <string name="bgservice_notification_title">FPVRaceTimer Backgroundservice</string>
+    <string name="bgservice_notification_stop">Stop Service</string>
+    <string name="webserver_notification_channel_id">FPVRT_WEBSERVER_NOTIFICATION</string>
+    <string name="webserver_notification_title">FPVRaceTimer Webserver</string>
+    <string name="webserver_notification_stop">Stop Server</string>
+    <string name="manifest_service_reason">SpecialUse is used to drive a backgroundservice hosting a webpage</string>
+    <string name="droneconfig_nav_title">Drones</string>
+    <string name="audio_nav_title">Audio</string>
+    <string name="sync_submit">Sync</string>
+    <string name="webtemplate_index" >
+        <html>
+            <head>
+                <title>FPVRaceTimer</title>
+            </head>
+            <body>
+                Test
+            </body>
+        </html>
+    </string>
+    <string name="audiofragment_recordbutton_record">Start record</string>
+    <string name="audiofragment_recordbutton_stop">Stop record</string>
+    <string name="s3_access">fpvrt</string>
+    <string name="s3_secret"></string>
+    <string name="s3_endpoint">http://s3.int.pedda.net</string>
+    <string name="s3_bucket">fpvrt</string>
+    <string name="dronenamedialog_text">Dronename</string>
+    <string name="races_nav_title">Races</string>
+    <string name="btn_Create">Create</string>
+    <string name="btn_Cancel">Cancel</string>
+    <string name="fab_add_race">Add Race</string>
+    <string name="races_namehint">Racename</string>
+    <string name="fab_control_race">Start/Stop Race</string>
+    <string name="status">Status</string>
+    <string name="currentlyactive">Currently Active Race state</string>
+    <string name="details">Details</string>
+    <string name="race_detail_fragmentlabel">Race Detail</string>
+</resources>

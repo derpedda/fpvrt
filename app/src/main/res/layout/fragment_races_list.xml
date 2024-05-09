@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5sp">
+
+    <TextView
+        android:id="@+id/races_tv_id"
+        android:layout_width="20dp"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="20sp"
+        android:layout_margin="5sp"/>
+
+    <TextView
+        android:id="@+id/races_tv_racename"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintStart_toEndOf="@id/races_tv_id"
+        app:layout_constraintBaseline_toBaselineOf="@id/races_tv_id"
+        android:textSize="20sp"
+        android:layout_margin="5sp"/>
+
+    <TextView
+        android:id="@+id/races_tv_drones"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        app:layout_constraintStart_toEndOf="@id/races_tv_racename"
+        app:layout_constraintBaseline_toBaselineOf="@id/races_tv_id"
+        android:layout_margin="5sp"/>
+
+
+    <ImageView
+        android:layout_width="50sp"
+        android:layout_height="50sp"
+        android:id="@+id/races_iv_details"
+        app:layout_constraintTop_toTopOf="@id/races_tv_id"
+        app:layout_constraintBottom_toBottomOf="@id/races_tv_id"
+        app:layout_constraintEnd_toStartOf="@id/races_iv_state"
+        android:contentDescription="@string/details"
+        android:src="@drawable/baseline_format_list_bulleted_24"/>
+
+    <ImageView
+        android:layout_width="50sp"
+        android:layout_height="50sp"
+        android:id="@+id/races_iv_state"
+        app:layout_constraintTop_toTopOf="@id/races_tv_id"
+        app:layout_constraintBottom_toBottomOf="@id/races_tv_id"
+        app:layout_constraintEnd_toStartOf="@id/races_iv_select"
+        android:contentDescription="@string/status" />
+
+    <ImageView
+        android:layout_width="50sp"
+        android:layout_height="50sp"
+        android:id="@+id/races_iv_select"
+        app:layout_constraintTop_toTopOf="@id/races_tv_id"
+        app:layout_constraintBottom_toBottomOf="@id/races_tv_id"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="#E0E0E0"
+        android:contentDescription="@string/currentlyactive" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

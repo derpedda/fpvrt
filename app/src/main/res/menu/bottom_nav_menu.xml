@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/title_home" />
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@drawable/ic_race_24"
+        android:title="@string/title_dashboard" />
+
+    <item
+        android:id="@+id/navigation_droneFragment"
+        android:icon="@drawable/ic_quadcopter"
+        android:title="@string/droneconfig_nav_title">
+    </item>
+<!--    <item-->
+<!--        android:id="@+id/navigation_audioFragment"-->
+<!--        android:icon="@drawable/baseline_audiotrack_24"-->
+<!--        android:title="@string/audio_nav_title"-->
+<!--        android:enabled="false">-->
+<!--    </item>-->
+    <item
+        android:id="@+id/navigation_racesFragment"
+        android:icon="@drawable/ic_outlined_flag_24"
+        android:title="@string/races_nav_title">
+    </item>
+
+</menu>
