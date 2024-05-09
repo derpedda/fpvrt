@@ -40,4 +40,5 @@
     <string name="status">Status</string>
     <string name="currentlyactive">Currently Active Race state</string>
     <string name="details">Details</string>
+    <string name="race_detail_fragmentlabel">Race Detail</string>
 </resources>

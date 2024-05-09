@@ -40,13 +40,13 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="androidx.work.impl.foreground.SystemForegroundService"
-            android:foregroundServiceType="specialUse"
-            android:exported="false"
-            tools:node="merge">
-            <property android:name="reason" android:resource="@string/manifest_service_reason" />
-        </service>
+<!--        <service-->
+<!--            android:name="androidx.work.impl.foreground.SystemForegroundService"-->
+<!--            android:foregroundServiceType="specialUse"-->
+<!--            android:exported="false"-->
+<!--            tools:node="merge">-->
+<!--            <property android:name="reason" android:resource="@string/manifest_service_reason" />-->
+<!--        </service>-->
 
         <service
             android:name=".ble.BluetoothLeConnectionService"

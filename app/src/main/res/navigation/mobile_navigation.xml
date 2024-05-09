@@ -61,10 +61,10 @@
     <fragment
         android:id="@+id/navigation_raceDetailFragment"
         android:name="net.pedda.fpvracetimer.ui.races.RaceDetailFragment"
-        android:label="fragment_race_detail"
+        android:label="@string/race_detail_fragmentlabel"
         tools:layout="@layout/fragment_race_detail" />
-    <argument
-        android:name="raceid"
-        app:argType="integer" />
+        <argument
+            android:name="raceid"
+            app:argType="integer" />
 
 </navigation>

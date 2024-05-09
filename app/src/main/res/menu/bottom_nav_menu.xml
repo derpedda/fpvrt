@@ -17,12 +17,12 @@
         android:icon="@drawable/ic_quadcopter"
         android:title="@string/droneconfig_nav_title">
     </item>
-    <item
-        android:id="@+id/navigation_audioFragment"
-        android:icon="@drawable/baseline_audiotrack_24"
-        android:title="@string/audio_nav_title"
-        android:enabled="false">
-    </item>
+<!--    <item-->
+<!--        android:id="@+id/navigation_audioFragment"-->
+<!--        android:icon="@drawable/baseline_audiotrack_24"-->
+<!--        android:title="@string/audio_nav_title"-->
+<!--        android:enabled="false">-->
+<!--    </item>-->
     <item
         android:id="@+id/navigation_racesFragment"
         android:icon="@drawable/ic_outlined_flag_24"

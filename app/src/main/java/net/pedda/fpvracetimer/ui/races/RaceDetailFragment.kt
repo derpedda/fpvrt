@@ -1,16 +1,20 @@
 package net.pedda.fpvracetimer.ui.races
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import net.pedda.fpvracetimer.R
 import net.pedda.fpvracetimer.ui.races.raceview.RaceDetailAdapter
 
@@ -34,7 +38,26 @@ class RaceDetailFragment : Fragment() {
 
         mRaceNameTv = root.findViewById(R.id.racedetail_racename)
 
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if(menuItem.itemId == android.R.id.home) {
+                    requireActivity().onBackPressedDispatcher.onBackPressed()
+                }
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.STARTED)
+
         return root
+    }
+
+    override fun onDestroy() {
+
+        super.onDestroy()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
