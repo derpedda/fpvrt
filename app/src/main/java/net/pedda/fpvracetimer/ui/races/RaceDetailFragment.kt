@@ -19,13 +19,9 @@ class RaceDetailFragment : Fragment() {
     var mRecycler: RecyclerView? = null
     var mRaceNameTv: TextView? = null
 
-    var raceid = -1;
+    var raceid: Long = -1;
 
     var mAdapter: RaceDetailAdapter = RaceDetailAdapter()
-
-//    companion object {
-//        fun newInstance() = RaceDetailFragment()
-//    }
 
     private lateinit var viewModel: RaceDetailViewModel
 
@@ -43,7 +39,7 @@ class RaceDetailFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        raceid = arguments?.getInt("raceid")!!
+        raceid = arguments?.getLong("raceid")!!
 
         viewModel = ViewModelProvider(this)[RaceDetailViewModel::class.java]
 
@@ -58,9 +54,4 @@ class RaceDetailFragment : Fragment() {
 
 
     }
-
-
-
-
-
 }

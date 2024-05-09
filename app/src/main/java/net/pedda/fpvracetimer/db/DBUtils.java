@@ -1,11 +1,9 @@
 package net.pedda.fpvracetimer.db;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 
 import net.pedda.fpvracetimer.MainActivity;
@@ -20,6 +18,7 @@ import net.pedda.fpvracetimer.ui.droneconfig.DroneItemContent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -131,7 +130,7 @@ public class DBUtils {
     public static void inputTimingEvent(DroneDetectedEvent dde) {
         mExecutor.execute(() -> {
             RecordedRecord rr = new RecordedRecord();
-            rr.setRaceId(FPVDb.getDatabase(null).raceDao().currentRace().getUid());
+            rr.setRaceId(FPVDb.getDatabase(null).raceDao().currentRace().getRaceid());
             // calc delta
             RecordedRecord lastrecord = FPVDb.getDatabase(null)
                     .recordedRecordDao()
@@ -180,7 +179,7 @@ public class DBUtils {
                 if (d == null) {
                     d = new Drone();
                     d.setDronename(di.droneName);
-                    d.setTransponderid(transponderid);
+//                    d.setTransponderid(transponderid);
                     fpvdb.droneDao().insert(d);
                     initDroneMaps();
                 }
@@ -198,7 +197,7 @@ public class DBUtils {
                     Drone d = fpvdb.droneDao().getDrone(transponderid);
                     if (d != null) {
                         d.setDronename(di.droneName);
-                        d.setTransponderid(transponderid);
+//                        d.setTransponderid(transponderid);
                         fpvdb.droneDao().updateDrone(d);
                         initDroneMaps();
                     } else {
@@ -268,11 +267,17 @@ public class DBUtils {
         });
     }
 
-    public static void getRaceAndDronesWithRecords(int raceid, ResultRaceDetailsAvailable cb) {
+    public static void getRaceAndDronesWithRecords(long raceid, ResultRaceDetailsAvailable cb) {
         mExecutor.execute(() -> {
             FPVDb fpvDb = FPVDb.getDatabase(null);
             Race currentRace = fpvDb.raceDao().getRace(raceid);
-            List<DroneWithRecords> dwr = fpvDb.recordedRecordDao().getDronesWithRecordsForRace(raceid);
+//            List<DroneWithRecords> dwr = fpvDb.recordedRecordDao().getDronesWithRecordsForRace(raceid);
+            Map<Drone, List<RecordedRecord>> dwr = fpvDb.droneDao().getAllValidRecordsForRace(raceid);
+
+//            Map<Drone, List<RecordedRecord>> dwr = fpvDb.droneDao().getAllRecordsMap();
+//            Map<Drone, List<RecordedRecord>> test = fpvDb.droneDao().getRecordsForDrone(268362351214884L);
+
+
             ResultRaceDetails rrd = new ResultRaceDetails(currentRace, dwr);
             cb.onComplete(rrd);
         });

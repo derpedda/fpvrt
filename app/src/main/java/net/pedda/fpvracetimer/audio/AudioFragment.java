@@ -25,7 +25,9 @@ import net.pedda.fpvracetimer.MainActivity;
 import net.pedda.fpvracetimer.R;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.concurrent.Executor;
 
 public class AudioFragment extends Fragment {
@@ -34,6 +36,8 @@ public class AudioFragment extends Fragment {
 
     private Executor mExecutor;
     private Button btn_record;
+
+    private Button btn_uploadall;
     private TextView tv_recording;
 
     private MediaRecorder mr;
@@ -95,6 +99,25 @@ public class AudioFragment extends Fragment {
                 btn_record.setText("Stop recording");
 
             }
+        });
+
+        btn_uploadall = root.findViewById(R.id.btn_uploadall);
+        btn_uploadall.setOnClickListener((btn) -> {
+            File[] files = requireContext().getCacheDir().listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".aac");
+                }
+            });
+            for (File f : files) {
+                UploadTaskExists ut = new UploadTaskExists(requireContext().getString(R.string.s3_bucket),
+                        requireContext().getString(R.string.s3_endpoint),
+                        requireContext().getString(R.string.s3_access),
+                        requireContext().getString(R.string.s3_secret),
+                        f);
+                mExecutor.execute(ut);
+            }
+
         });
 
         mr = new MediaRecorder();

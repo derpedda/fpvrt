@@ -10,7 +10,9 @@ import androidx.room.PrimaryKey
 import net.pedda.fpvracetimer.camtools.HelperFunctionsCV
 
 @Entity(tableName = "drones")
-class Drone {
+class Drone(@ColumnInfo(name = "transponderid")
+            @PrimaryKey
+            val transponderid: Long = 0) {
 
     @ColumnInfo(name = "name")
     var dronename: String? = null
@@ -47,9 +49,23 @@ class Drone {
 
     var lastSeen: Long = 0;
 
-    @ColumnInfo(name = "transponderid")
-    @PrimaryKey
-    var transponderid: Long = 0
-
     var mac: String? = null
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Drone
+
+        return transponderid == other.transponderid
+        // Include other fields as required
+
+    }
+
+    override fun hashCode(): Int {
+        val result = transponderid.hashCode()
+        // Include other fields as required
+        return result
+    }
+
 }

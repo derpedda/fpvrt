@@ -18,4 +18,10 @@
         android:layout_height="wrap_content"
         android:text="@string/audiofragment_recordbutton_record" />
 
+    <Button
+        android:id="@+id/btn_uploadall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload all" />
+
 </LinearLayout>

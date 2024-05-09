@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Drone.class, RecordedRecord.class, Race.class, RaceDronesCrossRef.class}, views = {RecordedRecordValid.class}, version = 15)
+@Database(entities = {Drone.class, RecordedRecord.class, Race.class, RaceDronesCrossRef.class}, views = {}, version = 17)
 public abstract class FPVDb extends RoomDatabase {
     public abstract DroneDao droneDao();
 

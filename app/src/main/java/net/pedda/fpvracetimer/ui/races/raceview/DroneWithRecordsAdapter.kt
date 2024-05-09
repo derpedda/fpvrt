@@ -7,10 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import net.pedda.fpvracetimer.databinding.RacesDroneDetailBinding
 import net.pedda.fpvracetimer.db.Drone
 import net.pedda.fpvracetimer.db.RecordedRecord
-import net.pedda.fpvracetimer.db.RecordedRecordValid
 
 class DroneWithRecordsAdapter(
-        val records: List<RecordedRecordValid>,
+        val records: List<RecordedRecord>?,
         val drone: Drone
 ) : RecyclerView.Adapter<DroneWithRecordsAdapter.ViewHolder>() {
 
@@ -20,16 +19,16 @@ class DroneWithRecordsAdapter(
     }
 
     override fun getItemCount(): Int {
-        return records.size
+        return records!!.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val record = records.get(position)
+        val record = records!!.get(position)
 
         holder.lapId.text = record.uid.toString()
         // calc the lap
         val ms = record.duration
-        val seconds = (ms / 1000F)
+        val seconds = ms / 1000F
         val totalminutes = (seconds / 60).toLong()
         val remainingSeconds = (((ms/1000) % 1000L) % 60).toLong()
         val remainingMilliseconds = (ms % 1000L).toLong()

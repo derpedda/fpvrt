@@ -59,7 +59,7 @@ class RacesRecyclerAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = dataSet.get(position)
         holder.mItem = item
-        holder.mIdView.text = item.uid.toString()
+        holder.mIdView.text = item.raceid.toString()
         holder.mNameView.text = item.racename
         holder.mIsActive.setImageResource(if (item.isActive) R.drawable.baseline_check_24 else android.R.color.transparent)
         holder.mIsActive.setOnClickListener() {

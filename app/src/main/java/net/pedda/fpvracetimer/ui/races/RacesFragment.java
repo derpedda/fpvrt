@@ -1,8 +1,6 @@
 package net.pedda.fpvracetimer.ui.races;
 
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.os.Bundle;
@@ -11,8 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDirections;
-import androidx.navigation.fragment.FragmentNavigatorDestinationBuilder;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,9 +20,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import net.pedda.fpvracetimer.R;
 import net.pedda.fpvracetimer.db.Race;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RacesFragment extends Fragment {
 
@@ -77,7 +70,7 @@ public class RacesFragment extends Fragment {
 
         NavController navController = NavHostFragment.findNavController(this);
         Bundle bundle = new Bundle();
-        bundle.putInt("raceid", r.getUid());
+        bundle.putLong("raceid", r.getRaceid());
         navController.navigate(R.id.action_racesFragment_to_raceDetailFragment, bundle);
 
 //        FragmentTransaction transaction = fragmentManager.beginTransaction();

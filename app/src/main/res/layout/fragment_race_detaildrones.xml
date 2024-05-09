@@ -6,10 +6,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:nestedScrollingEnabled="true">
+<!--    <ScrollView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:nestedScrollingEnabled="true">-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,14 +29,14 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/racedetail_laprecycler"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="400sp"
                 android:layout_margin="5sp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintTop_toBottomOf="@id/racedetail_dronename" />
 
 
         </LinearLayout>
-    </ScrollView>
+<!--    </ScrollView>-->
 
     <!--        app:layout_constraintEnd_toEndOf="parent"-->
     <!--        app:layout_constraintStart_toStartOf="parent"-->

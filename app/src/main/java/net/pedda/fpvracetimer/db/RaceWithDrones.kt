@@ -8,9 +8,9 @@ import androidx.room.Junction
 import androidx.room.Query
 import androidx.room.Relation
 
-@Entity(primaryKeys = ["transponderid", "uid"], indices = [Index("transponderid")])
+@Entity(primaryKeys = ["transponderid", "raceid"], indices = [Index("transponderid")])
 data class RaceDronesCrossRef(
-        val uid: Long,
+        val raceid: Long,
         val transponderid: Long
 )
 
@@ -18,7 +18,7 @@ data class RaceDronesCrossRef(
 data class RaceWithDrones(
         @Embedded val race: Race,
         @Relation(
-                parentColumn = "uid",
+                parentColumn = "raceid",
                 entityColumn = "transponderid",
                 associateBy = Junction(RaceDronesCrossRef::class)
         )
@@ -31,5 +31,5 @@ data class DroneWithRecords(
                 parentColumn = "transponderid",
                 entityColumn = "droneId"
         )
-        val records: List<RecordedRecordValid>
+        val records: List<RecordedRecord>
 )

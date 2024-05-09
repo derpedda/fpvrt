@@ -36,8 +36,8 @@ interface RaceDao {
     fun getRacesWithDrones(): List<RaceWithDrones>
 
 
-    @Query("SELECT * FROM races WHERE uid = :raceid LIMIT 1")
-    fun getRace(raceid: Int): Race
+    @Query("SELECT * FROM races WHERE raceid = :raceid LIMIT 1")
+    fun getRace(raceid: Long): Race
 
 
 }

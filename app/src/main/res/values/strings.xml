@@ -27,8 +27,8 @@
     <string name="audiofragment_recordbutton_record">Start record</string>
     <string name="audiofragment_recordbutton_stop">Stop record</string>
     <string name="s3_access">fpvrt</string>
-    <string name="s3_secret">0drJDx121EeVs4KKXiKth3Wo7F</string>
-    <string name="s3_endpoint">http://s3.int.pedda.net/</string>
+    <string name="s3_secret"></string>
+    <string name="s3_endpoint">http://s3.int.pedda.net</string>
     <string name="s3_bucket">fpvrt</string>
     <string name="dronenamedialog_text">Dronename</string>
     <string name="races_nav_title">Races</string>

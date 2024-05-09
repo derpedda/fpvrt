@@ -8,6 +8,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,26 +43,37 @@ public interface DroneDao {
     Map<Drone, List<RecordedRecord>> getAllRecords();
 
 
+    @Transaction
     @Query(
-            "SELECT * FROM drones JOIN recordedrecords on drones.transponderid=recordedrecords.droneId WHERE isFirst != 1 AND raceId == :raceid"
+            "SELECT * FROM drones" +
+            " JOIN recordedrecords on drones.transponderid = recordedrecords.droneId" +
+            " WHERE isFirst != 1 AND raceId == :raceid"
     )
-    Map<Drone, List<RecordedRecord>> getAllValidRecordsForRace(int raceid);
+    Map<Drone, List<RecordedRecord>> getAllValidRecordsForRace(long raceid);
+
+    @Transaction
+    @Query(
+            "SELECT * FROM drones" +
+                    " JOIN recordedrecords on drones.transponderid = recordedrecords.droneId"
+    )
+    Map<Drone, List<RecordedRecord>> getAllRecordsMap();
+
 
     @Query(
             "SELECT * FROM drones JOIN recordedrecords on droneId=transponderid where :transponderid"
     )
     Map<Drone, List<RecordedRecord>> getRecordsForDrone(long transponderid);
 
-    @Query(
-            "SELECT * FROM drones JOIN recordedrecords on drones.transponderid=recordedrecords.droneId WHERE isFirst = 0"
-    )
-    Map<Drone, List<RecordedRecordValid>> getAllValidRecords();
+//    @Query(
+//            "SELECT * FROM drones JOIN recordedrecords on drones.transponderid=recordedrecords.droneId WHERE isFirst = 0"
+//    )
+//    Map<Drone, List<RecordedRecordValid>> getAllValidRecords();
 
 
-    @Query(
-            "SELECT * FROM drones JOIN recordedrecords on droneId=transponderid where :transponderid AND isFirst = 0"
-    )
-    Map<Drone, List<RecordedRecordValid>> getValidRecordsForDrone(long transponderid);
+//    @Query(
+//            "SELECT * FROM drones JOIN recordedrecords on droneId=transponderid where :transponderid AND isFirst = 0"
+//    )
+//    Map<Drone, List<RecordedRecordValid>> getValidRecordsForDrone(long transponderid);
 
 
     @Update

@@ -34,8 +34,8 @@ public class DroneViewModel extends ViewModel {
     }
 
     public void addNewDrone(String deviceMac, String droneName, String droneId, int dRSSI, Integer dColor) {
-        Drone d = new Drone();
-        d.setTransponderid(Long.decode(droneId));
+        Drone d = new Drone(Long.decode(droneId));
+//        d.setTransponderid(Long.decode(droneId));
         d.setDronename(droneName);
         d.setRssi(dRSSI);
         d.setMac(deviceMac);
