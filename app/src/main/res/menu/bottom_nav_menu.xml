@@ -20,7 +20,8 @@
     <item
         android:id="@+id/navigation_audioFragment"
         android:icon="@drawable/baseline_audiotrack_24"
-        android:title="@string/audio_nav_title">
+        android:title="@string/audio_nav_title"
+        android:enabled="false">
     </item>
     <item
         android:id="@+id/navigation_racesFragment"
